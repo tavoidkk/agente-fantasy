@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11111a">
+  <title>Configuración de IA · Fantasy Advisor</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/settings.css">
+  <script defer src="/settings.js"></script>
+</head>
+<body class="settings-page">
+  <main class="settings-shell">
+    <a class="settings-back" href="/#plantilla">← Volver al asesor</a>
+    <header class="settings-hero">
+      <div class="brand-mark">F<span>+</span></div>
+      <div><div class="eyebrow">PREFERENCIAS LOCALES</div><h1>Configuración de IA</h1><p>Conecta OpenRouter para revisar el once, el mercado y las oportunidades de tu liga.</p></div>
+    </header>
+    <section class="settings-card">
+      <div class="settings-card-heading"><div><span class="settings-icon">✦</span><div><h2>OpenRouter</h2><p>La clave se guarda en el Administrador de credenciales de Windows.</p></div></div><span id="ai-status" class="settings-status">Comprobando…</span></div>
+      <form id="ai-settings-form" autocomplete="off">
+        <label for="openrouter-key">Clave API</label>
+        <input id="openrouter-key" name="apiKey" type="password" placeholder="sk-or-v1-…" autocomplete="new-password" spellcheck="false">
+        <small id="key-hint" class="field-help">Se envía solo a OpenRouter al guardar. Nunca se muestra después de guardarla.</small>
+        <label for="openrouter-model">Modelo predeterminado</label>
+        <div class="model-input-row"><input id="openrouter-model" name="model" list="free-model-options" value="openrouter/free" required><datalist id="free-model-options"><option value="openrouter/free">Router de modelos gratuitos</option><option value="openrouter/auto">Router automático</option></datalist><button id="use-free-router" class="secondary-button" type="button">Usar gratis</button></div>
+        <small class="field-help">Recomendado: <b>openrouter/free</b>. El router elige un modelo gratuito compatible, también con salida estructurada. Puedes escribir otro identificador de OpenRouter.</small>
+        <div class="settings-actions"><button class="primary-button" type="submit">Guardar ajustes</button><button id="test-ai" class="secondary-button" type="button">Verificar conexión</button><button id="remove-ai-key" class="quiet-button" type="button">Quitar clave guardada</button></div>
+        <p id="settings-feedback" class="settings-feedback" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <section class="settings-note"><h2>Qué datos usa</h2><p>El análisis recibe una selección de tu plantilla, puntos y precios, las cláusulas visibles, movimientos con importe y las referencias de sobreprecio observadas en tu liga. No recibe el token OAuth de LALIGA ni puede enviar pujas, clausular, vender o cambiar el once.</p><p>El modo <b>openrouter/free</b> no cobra por tokens según OpenRouter; disponibilidad y límites pueden variar. Si no responde, puedes elegir otro modelo en esta página.</p></section>
+    <footer class="settings-footer">FANTASY ADVISOR <span>·</span> Configuración local</footer>
+  </main>
+</body>
+</html>

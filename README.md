@@ -1,32 +1,80 @@
-# Agente Fantasy
+<div align="center">
+  <h1>⚽ Agente Fantasy</h1>
+  <p><strong>Decisiones más claras para hacer crecer tu equipo de LALIGA Fantasy.</strong></p>
+  <p>Un asesor local que reúne plantilla, mercado, actividad de liga y referencias de FutbolFantasy en un panel explicable y de solo lectura.</p>
 
-Asistente local para analizar tu equipo de LALIGA Fantasy. Reúne plantilla, mercado, actividad de la liga y datos de FutbolFantasy para ayudarte a valorar fichajes, ventas y alineaciones con criterios visibles.
+  <p>
+    <a href="https://github.com/tavoidkk/agente-fantasy"><img src="https://img.shields.io/badge/Proyecto-Agente%20Fantasy-F4E51C?style=for-the-badge&labelColor=17171F" alt="Agente Fantasy en GitHub" /></a>
+    <img src="https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.11 o posterior" />
+    <img src="https://img.shields.io/badge/Interfaz-Web%20local-6659C7?style=for-the-badge" alt="Panel web local" />
+    <img src="https://img.shields.io/badge/Modo-Solo%20lectura-168C68?style=for-the-badge" alt="Solo lectura" />
+  </p>
+  <p><sub>En desarrollo · independiente y no afiliado a LALIGA ni a FutbolFantasy.</sub></p>
+</div>
 
-> **Estado:** en desarrollo. El asesor recomienda; no realiza pujas, ventas, clausulazos ni cambios de alineación en el juego.
+<br />
 
-**Descripción corta para GitHub:** Asistente local para LALIGA Fantasy: analiza tu plantilla, el mercado y tus rivales, y combina precios y posibles alineaciones de FutbolFantasy para ofrecer recomendaciones explicables.
+## Contenido
 
-## Qué incluye
+- [Qué es](#qué-es-agente-fantasy)
+- [Qué puedes hacer](#qué-puedes-hacer)
+- [Cómo funciona](#cómo-funciona)
+- [Inicio local](#inicio-local)
+- [Comandos](#comandos)
+- [Fuentes y recomendaciones](#fuentes-y-recomendaciones)
+- [Privacidad y seguridad](#privacidad-y-seguridad)
+- [Estado y límites](#estado-y-límites)
+- [Resolución de problemas](#resolución-de-problemas)
 
-- **Panel web local** con resumen del equipo, actividad reciente, posición, mercado activo y búsqueda de jugadores, clubes y managers.
-- **Constructor de plantilla** con formaciones, capitán, reservas, sugerencia de XI y vistas de precio, puntos y rentabilidad estimada. Los cambios del constructor se guardan como borrador local.
-- **Mercado y radar de rivales** con precios, tendencias, cláusulas visibles y rangos orientativos de puja basados en operaciones observadas.
-- **Ficha e historial de jugadores** con precios publicados por FutbolFantasy y observaciones locales recopiladas por la aplicación.
-- **Partidos y posibles alineaciones** para consultar la probabilidad de titularidad y el contexto de la jornada.
-- **Favoritos locales** para seguir jugadores y cambios de precio en este navegador. No se sincronizan con los favoritos de LALIGA Fantasy.
-- **Configuración opcional de OpenRouter** desde la web. El asesor local sigue disponible sin configurar un modelo.
+## Qué es Agente Fantasy
 
-## Requisitos
+Agente Fantasy ayuda a administrar una liga de LALIGA Fantasy con información reunida en un único panel. Su objetivo es **aumentar el valor y la competitividad de tu plantilla**: compara precios, tendencias, rendimiento, actividad visible y necesidades del once para que puedas decidir con más contexto.
 
-- Windows 10/11 recomendado; el uso de Windows Credential Manager para proteger credenciales requiere un backend de `keyring` disponible.
+La aplicación se ejecuta en tu ordenador. Las recomendaciones explican los datos que las sustentan y mantienen separadas las observaciones de las estimaciones. **No hace pujas, ventas, clausulazos ni cambios en el juego.**
+
+## Qué puedes hacer
+
+| Área | Funcionalidad |
+| --- | --- |
+| **Panel** | Resumen de tu equipo, posición, valor, puntos, mercado y últimos movimientos. |
+| **Constructor de alineación** | Organiza tu XI por formación, compara las métricas disponibles y guarda un borrador local. |
+| **Mercado** | Consulta jugadores libres y puestos en venta por managers, con precio, tendencia y rango orientativo de puja. |
+| **Rivales** | Revisa plantillas, cláusulas visibles, tendencias de precio y operaciones de actividad atribuibles cuando existen. |
+| **Partidos y posibles onces** | Explora encuentros y alineaciones probables de FutbolFantasy, con probabilidad y datos disponibles por jugador. |
+| **Ficha e historial** | Consulta referencias de precio, variaciones e historial local recopilado por la aplicación. |
+| **Favoritos y búsqueda** | Sigue jugadores en este navegador y busca jugadores, clubes o managers dentro de la liga. |
+| **IA opcional** | Configura OpenRouter desde la interfaz para obtener propuestas explicables. La aplicación funciona también sin IA. |
+
+## Cómo funciona
+
+```mermaid
+flowchart LR
+  L[LALIGA Fantasy · consultas de lectura] --> A[Conector y normalización]
+  F[FutbolFantasy · datos públicos] --> A
+  A --> D[(SQLite local)]
+  D --> R[Reglas y estimaciones explicables]
+  R --> W[Panel web local]
+  W -. análisis opcional .-> O[OpenRouter]
+```
+
+- **LALIGA Fantasy** aporta la información privada de la liga disponible para la cuenta conectada.
+- **FutbolFantasy** aporta referencias públicas de precios, variaciones y posibles alineaciones.
+- **SQLite** conserva observaciones para acelerar consultas y formar un historial local.
+- **OpenRouter es opcional**. Solo se envía al proveedor la selección de datos necesaria para el análisis; el token OAuth de LALIGA no se incluye en esa solicitud.
+
+## Inicio local
+
+### Requisitos
+
+- Windows 10/11 recomendado.
 - Python 3.11 o posterior.
-- Una cuenta de LALIGA Fantasy para consultar los datos privados de tu liga. El acceso se realiza mediante el flujo OAuth local; no necesitas entregar tu contraseña a esta aplicación.
-- Conexión a internet para consultar LALIGA Fantasy y FutbolFantasy.
-- Opcional: una clave de OpenRouter si quieres usar el análisis con IA.
+- Conexión a internet para actualizar LALIGA Fantasy y FutbolFantasy.
+- Una sesión de LALIGA Fantasy. La conexión se realiza mediante el flujo OAuth local; no entregues tu contraseña a la aplicación.
+- Opcional: una clave de OpenRouter para las recomendaciones asistidas por IA.
 
-## Instalación y primer inicio
+### Instalar y abrir
 
-Abre PowerShell en la carpeta del proyecto:
+Abre PowerShell en la carpeta del repositorio:
 
 ```powershell
 py -3.11 -m venv .venv
@@ -36,97 +84,89 @@ python -m pip install -e .
 fantasy-advisor web
 ```
 
-La aplicación abre un panel privado en `http://127.0.0.1:8765`. Desde la opción **Conectar** inicia sesión en la página oficial de LALIGA y selecciona tu liga. No compartas con nadie la URL de retorno OAuth que aparece durante el proceso.
+Abre [http://127.0.0.1:8765](http://127.0.0.1:8765). Desde **Conectar**, completa el acceso en la página oficial de LALIGA y selecciona la liga. La URL de retorno OAuth puede incluir un código temporal: no la publiques ni la compartas.
 
-Para actualizar primero los datos públicos de FutbolFantasy desde la terminal:
+Para actualizar precios y posibles alineaciones desde la terminal:
 
 ```powershell
 fantasy-advisor sync --prices-only
 ```
 
-Para detener el servidor, vuelve a la terminal y pulsa `Ctrl+C`.
+Detén el servidor con `Ctrl+C` en la terminal.
 
 ## Comandos
 
-| Comando | Función |
+| Comando | Uso |
 | --- | --- |
-| `fantasy-advisor status` | Estado de conexión y sincronizaciones |
-| `fantasy-advisor connect` | Conectar LALIGA Fantasy con OAuth local |
-| `fantasy-advisor disconnect` | Eliminar la sesión local guardada |
-| `fantasy-advisor sync` | Sincronizar precios y posibles alineaciones |
-| `fantasy-advisor sync --prices-only` | Sincronizar solo precios |
-| `fantasy-advisor sync --force` | Ignorar la caché local al sincronizar |
-| `fantasy-advisor prices "nombre"` | Consultar precios e historial de un jugador |
-| `fantasy-advisor league` | Consultar plantilla, saldo y rivales |
-| `fantasy-advisor recommend` | Generar recomendaciones de solo lectura |
-| `fantasy-advisor web` | Iniciar el panel web local |
+| `fantasy-advisor web` | Inicia el panel web local. |
+| `fantasy-advisor connect` | Conecta la cuenta y permite seleccionar liga. |
+| `fantasy-advisor status` | Muestra el estado de conexión y sincronización. |
+| `fantasy-advisor sync` | Actualiza precios y posibles alineaciones. |
+| `fantasy-advisor sync --prices-only` | Actualiza solo precios. |
+| `fantasy-advisor sync --force` | Fuerza una sincronización sin usar la caché. |
+| `fantasy-advisor league` | Consulta plantilla, saldo propio y rivales. |
+| `fantasy-advisor recommend` | Genera recomendaciones de solo lectura. |
+| `fantasy-advisor prices "nombre"` | Busca precio e historial de un jugador. |
+| `fantasy-advisor disconnect` | Quita la sesión guardada en este ordenador. |
 
-Usa `fantasy-advisor --help` o `fantasy-advisor <comando> --help` para ver las opciones disponibles.
+Consulta `fantasy-advisor --help` para ver la ayuda completa.
 
-## Fuentes y tratamiento de datos
+## Fuentes y recomendaciones
 
-### LALIGA Fantasy
+La API de LALIGA usada por el conector **no es oficial ni está documentada públicamente** y puede cambiar. FutbolFantasy se consulta desde sus páginas públicas. El conector de FutbolFantasy respeta `robots.txt`, usa caché y limita la frecuencia de solicitudes.
 
-La aplicación consulta mediante OAuth la cuenta seleccionada, la plantilla, la alineación, el mercado, los managers, la actividad y el catálogo de jugadores. El cliente se basa en una API **no oficial y no documentada públicamente**; LALIGA puede cambiarla sin aviso.
+Los rangos de puja se basan en importes de actividad que pueden compararse con una observación **fechada del valor de mercado de LALIGA**. Cuando hay suficientes operaciones comparables se priorizan por posición o tramo de precio; con menos datos la confianza baja. Si no existe una referencia verificable, el sistema no inventa un porcentaje de sobreprecio y mantiene el objetivo en el precio mínimo disponible.
 
-### FutbolFantasy
+La actividad no revela las pujas privadas. Tampoco confirma siempre quién compró o vendió, así que no equivale a un registro completo de precios ganadores. El rango es una estimación para apoyar tu decisión, no una garantía de ganar una puja.
 
-El conector obtiene precios, cambios publicados y posibles alineaciones de las páginas públicas de FutbolFantasy. Respeta `robots.txt`, usa caché y conserva observaciones locales para construir un historial propio. El histórico local empieza en la primera sincronización; no puede reconstruir observaciones que nunca se guardaron.
-
-La base de datos se guarda en:
+La base local se encuentra en:
 
 ```text
 %LOCALAPPDATA%\LaligaFantasyAdvisor\advisor.sqlite3
 ```
 
-Las credenciales OAuth y la clave opcional de OpenRouter se guardan en el almacén de credenciales del sistema mediante `keyring`; no se guardan en SQLite ni en este repositorio. Si OpenRouter está habilitado, la información seleccionada para el análisis se envía a ese proveedor. El token OAuth de LALIGA no se envía al modelo.
+El historial local empieza cuando la aplicación comienza a guardar observaciones; no puede reconstruir datos que nunca se capturaron.
 
-## Cómo interpretar las recomendaciones
+## Privacidad y seguridad
 
-- Los rangos de puja son orientativos y se calculan con operaciones observadas y señales de precio/rendimiento; no garantizan ganar una subasta.
-- Las pujas de otros managers son secretas. La actividad disponible no revela necesariamente el importe ni el sentido de cada traspaso.
-- El saldo real de otros managers no está disponible en los datos consultados.
-- El coste de compra y el beneficio o pérdida pueden inferirse de la actividad; si no hay una operación atribuible con suficiente confianza, se mostrarán como desconocidos.
-- Las posibles alineaciones y tendencias de valor pueden cambiar. Revisa la fecha de actualización y confirma los datos importantes en el juego.
+- La interfaz escucha en `127.0.0.1`; no la publiques directamente en internet.
+- Los tokens OAuth y la clave opcional de OpenRouter se guardan mediante `keyring` en el almacén de credenciales del sistema, no en este repositorio ni en SQLite.
+- No subas contraseñas, códigos OAuth, tokens, claves API, archivos locales de datos o capturas con información de tu liga.
+- Los borradores de alineación y favoritos son locales; no cambian tu equipo ni tus favoritos dentro del juego.
+- La aplicación es de solo lectura respecto a LALIGA Fantasy y requiere que confirmes cualquier acción directamente en el juego.
 
-## Seguridad y límites
+## Estado y límites
 
-- La web escucha solo en `127.0.0.1`; no la expongas directamente a internet ni a una red compartida sin añadir autenticación y protección adecuadas.
-- Nunca guardes contraseñas, códigos OAuth, tokens o claves API en el código, README, capturas o incidencias públicas.
-- Los borradores de alineación y favoritos de la web son locales y no modifican tu cuenta de LALIGA.
-- Esta versión **no ejecuta acciones dentro del juego**. Las recomendaciones requieren revisión y confirmación del usuario en LALIGA Fantasy.
-- Este proyecto es independiente y no está afiliado ni respaldado por LALIGA o FutbolFantasy. Revisa las condiciones de los servicios antes de utilizarlos.
+Este proyecto está en desarrollo. El formato de la API puede variar y los datos de FutbolFantasy pueden no identificar a todos los jugadores automáticamente. Si un jugador no se reconoce, revisa la sincronización y la ficha antes de basar una decisión en esa referencia.
 
-## Desarrollo
+Las cláusulas, bloqueos, valores y probables reflejan la última respuesta disponible, no una garantía de que sigan iguales al abrir el juego. Comprueba siempre las condiciones actuales antes de actuar.
 
-Instalación editable:
+## Resolución de problemas
 
-```powershell
-python -m pip install -e .
-```
+| Problema | Qué revisar |
+| --- | --- |
+| La liga no aparece | Ejecuta `fantasy-advisor connect` y vuelve a seleccionarla. |
+| El acceso OAuth no vuelve automáticamente | Copia la URL completa de retorno indicada por la aplicación en su terminal local; no la publiques. |
+| No se actualizan los precios | Ejecuta `fantasy-advisor sync --prices-only` y revisa la fecha de actualización. |
+| Un movimiento no muestra jugador | Actualiza el panel para volver a leer la actividad y el catálogo de jugadores de la API. |
+| La IA no responde | Revisa la clave y el modelo desde Ajustes. La disponibilidad de modelos gratuitos puede cambiar. |
+| Windows no guarda credenciales | Comprueba que el entorno Python tenga un backend de `keyring` disponible. |
 
-Ejecutar las pruebas del proyecto:
-
-```powershell
-python -m unittest discover -s tests -v
-```
-
-## Estructura
+## Estructura del proyecto
 
 ```text
 src/fantasy_advisor/
-├── advisor.py       # Reglas y recomendaciones
-├── auth.py          # OAuth local y almacenamiento de credenciales
-├── cli.py           # Comandos de terminal
-├── decisions.py     # Cálculos de puja y rentabilidad
+├── advisor.py       # Reglas para la alineación y el mercado
+├── auth.py          # OAuth local y credenciales del sistema
+├── decisions.py     # Rangos de puja y estimación de compra
 ├── sources/         # Conectores de LALIGA Fantasy y FutbolFantasy
-├── storage.py       # Historial y datos locales en SQLite
-├── web.py           # Servidor HTTP local y rutas
-└── web/             # Interfaz HTML, CSS y JavaScript
-tests/               # Pruebas automatizadas
-docs/                # Arquitectura y notas de fuentes de datos
+├── storage.py       # Historial local y configuración SQLite
+├── web.py           # Servidor local y API de la interfaz
+└── web/             # HTML, estilos y JavaScript del panel
+docs/                # Arquitectura y fuentes de datos
+tests/               # Pruebas automatizadas del proyecto
 ```
 
 ## Licencia
 
-No se ha definido todavía una licencia de distribución. Hasta que se añada una, no asumas que el código puede reutilizarse o redistribuirse.
+El repositorio aún no define una licencia. Hasta que se añada una, no se concede permiso explícito para reutilizar o redistribuir el código.

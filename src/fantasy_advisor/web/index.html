@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11111a">
+  <title>Fantasy Advisor · LALIGA</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite" aria-busy="true">
+    <div class="loading-card"><span class="loading-spinner" aria-hidden="true"></span><b id="loading-title">Preparando tu equipo</b><small id="loading-message">Cargando los datos más recientes…</small></div>
+  </div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#inicio" aria-label="Fantasy Advisor inicio">
+        <span class="brand-mark">F<span>+</span></span>
+        <span><b>FANTASY</b><small>ADVISOR</small></span>
+      </a>
+      <div class="side-label">MENÚ</div>
+      <nav class="nav-list">
+        <a class="nav-item active" href="#inicio"><span class="nav-icon">◈</span> Resumen</a>
+        <a class="nav-item" href="#plantilla"><span class="nav-icon">♟</span> Mi plantilla</a>
+        <a class="nav-item" href="#partidos"><span class="nav-icon">◉</span> Próximos partidos</a>
+        <a class="nav-item" href="#mercado"><span class="nav-icon">↗</span> Mercado</a>
+        <a class="nav-item" href="#radar-clausulas"><span class="nav-icon">⌕</span> Clausulazos</a>
+        <a class="nav-item" href="#ventas"><span class="nav-icon">↓</span> Ventas</a>
+        <a class="nav-item" href="#favoritos"><span class="nav-icon">★</span> Favoritos</a>
+        <a class="nav-item" href="#rivales"><span class="nav-icon">◎</span> Managers</a>
+        <a class="nav-item" href="#actividad"><span class="nav-icon">◷</span> Actividad</a>
+        <a class="nav-item" href="/conectar"><span class="nav-icon">↪</span> Cuenta y liga</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="connection"><span class="live-dot"></span><div><b>LALIGA conectada</b><small>Sesión local y privada</small></div></div>
+        <div class="read-only"><span>▣</span> MODO SOLO LECTURA</div>
+        <div class="side-foot">Tus credenciales permanecen<br>en tu dispositivo.</div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">FANTASY ADVISOR <span>/</span> <b id="league-name">Mi liga</b></div>
+        <div class="top-actions"><div class="global-search"><input id="global-search" type="search" placeholder="Buscar jugador, club o manager…" aria-label="Búsqueda global" autocomplete="off"><div id="global-results" class="global-results" hidden></div></div><div class="sync-state"><span class="live-dot"></span> Datos sincronizados</div><button id="refresh" class="icon-button" title="Actualizar datos" aria-label="Actualizar">⟳</button><div class="avatar">GV</div></div>
+      </header>
+
+      <section id="inicio" class="page-section">
+        <div class="hero-row">
+          <div><div class="eyebrow"><span></span> TU CENTRO DE CONTROL</div><h1>Hola, <span id="hero-manager-name">manager</span><span class="accent">.</span></h1><p class="hero-sub">Tu liga y tu equipo, en un solo lugar.</p></div>
+          <div class="week-pill"><span class="week-ball">⚽</span><span><b>Tu equipo, al día</b><small id="updated-at">Actualizando información…</small></span></div>
+        </div>
+        <div id="error-banner" class="error-banner hidden"></div>
+        <div class="dashboard-grid"><article class="movement-card"><div class="movement-head"><small>ÚLTIMOS MOVIMIENTOS</small><span>◷</span></div><div id="overview-activity-list" class="movement-list"></div><a class="movement-more" href="#actividad">Ver más <span aria-hidden="true">→</span></a></article><div class="dashboard-kpis"><a class="overview-card" href="#rivales"><small>POSICIÓN EN LA LIGA</small><strong id="overview-position">—</strong><span>Ver managers →</span></a><a class="overview-card" href="#plantilla"><small>VALOR DEL EQUIPO</small><strong id="overview-value">—</strong><span>Ver plantilla →</span></a><a class="overview-card" href="#partidos"><small>PUNTOS DE JORNADA</small><strong id="overview-points">—</strong><span>Ver partidos →</span></a><a class="overview-card" href="#mercado"><small>MERCADO ACTIVO</small><strong id="overview-market">—</strong><span>Explorar fichajes →</span></a><div class="balance-strip"><span>SALDO DISPONIBLE</span><strong id="balance">—</strong></div></div></div>
+
+        <div class="section-heading"><div><div class="eyebrow">LO IMPORTANTE AHORA</div><h2>Tu siguiente movimiento</h2></div><span class="section-note">Recomendaciones orientativas</span></div>
+        <div id="recommendations" class="recommendation-grid"></div>
+
+        <section id="plantilla" class="section-block squad-section">
+          <div class="section-heading"><div><div class="eyebrow">TU EQUIPO · LIGA PREMIUM</div><h2>Constructor de alineación</h2><p class="section-desc">Ordena el once, elige capitán y guarda un borrador local.</p></div><div class="formation-control"><label for="formation">FORMACIÓN</label><select id="formation"><option>4-3-3</option><option>4-4-2</option><option>3-4-3</option><option>3-5-2</option><option>4-5-1</option><option>5-3-2</option><option>5-4-1</option><optgroup label="Formaciones Premium"><option>3-6-1</option><option>3-3-4</option><option>4-2-4</option><option>4-6-0</option><option>5-2-3</option></optgroup></select></div></div>
+          <div class="pitch-view-bar"><div><span class="eyebrow">OBJETIVO</span><strong id="xi-completeness">Once pendiente</strong></div><label for="pitch-metric">VER EN EL CAMPO <select id="pitch-metric"><option value="daily">Cambio diario</option><option value="points">Últimas 3 jornadas</option><option value="profit">Ganancia / pérdida</option></select></label></div>
+          <div id="builder-view-pitch" class="builder-view">
+          <div class="builder-layout">
+            <div class="pitch-wrap"><div id="pitch" class="pitch"><button id="choose-captain" class="captain-picker-button" type="button">★ Elegir capitán</button><div id="captain-picker" class="captain-picker" hidden></div><div class="pitch-line halfway"></div><div class="center-circle"></div><div class="penalty-box top"></div><div class="penalty-box bottom"></div><div class="goal top"></div><div class="goal bottom"></div><div id="pitch-rows" class="pitch-rows"></div></div><div id="xi-value-summary" class="squad-value-summary"></div><div id="captain-recommendation" class="captain-recommendation"></div><div class="pitch-hint">Arrastra jugadores a su posición.</div></div>
+            <aside class="bench-panel"><div class="bench-header"><div><b>Tu plantilla</b><small id="bench-count">0 jugadores</small><small>Marca hasta 1 reserva por posición</small></div><select id="bench-trend-filter" aria-label="Filtrar plantilla por tendencia"><option value="all">Todas</option><option value="up">Subiendo</option><option value="down">Bajando</option></select><button id="optimize" class="best-xi-button" type="button" title="Formar el mejor once posible">✦ <span>Mejor XI</span></button></div><div id="bench-list" class="bench-list"></div><div id="bench-value-summary" class="squad-value-summary compact"></div></aside>
+          </div>
+          </div>
+            <div id="budget-planner"></div>
+          <div class="builder-footer"><div class="draft-state"><span class="live-dot"></span><span id="draft-status">Borrador local</span></div><button id="save-draft" class="primary-button">Guardar borrador <span>→</span></button></div>
+        </section>
+
+        <section id="partidos" class="section-block fixtures-section"><div class="section-heading"><div><div class="eyebrow">PRÓXIMA JORNADA · FUTBOLFANTASY</div><h2>Partidos y onces probables</h2><p class="section-desc">Alineaciones orientativas sujetas a cambios antes del partido.</p></div><div class="fixture-controls"><label for="fixture-metric">VER JUGADORES</label><select id="fixture-metric"><option value="form">Forma y probabilidad</option><option value="market">Valores de mercado</option><option value="points">Puntos última jornada</option></select><span id="fixtures-count" class="count-pill">—</span></div></div><div id="fixture-tabs" class="fixture-tabs"></div><div id="fixture-detail" class="fixture-detail"></div></section>
+
+        <section id="mercado" class="section-block">
+          <div class="section-heading"><div><div class="eyebrow">FICHAJES DISPONIBLES</div><h2>Mercado de tu liga</h2><p class="section-desc">Separado por origen y conservando el orden del juego.</p></div><span id="market-count" class="count-pill">—</span></div>
+          <div class="toolbar"><div class="search-box"><span>⌕</span><input id="market-search" type="search" placeholder="Buscar jugador…"></div><select id="position-filter"><option value="">Todas las posiciones</option><option>Portero</option><option>Defensa</option><option>Medio</option><option>Delantero</option></select><select id="market-sort"><option value="game">Orden del juego</option><option value="value">Precio de salida</option><option value="trend">Tendencia 7 días</option><option value="points">Puntos</option></select><select id="market-trend-filter" aria-label="Filtrar mercado por tendencia"><option value="all">Todas las tendencias</option><option value="up">Solo subidas</option><option value="down">Solo bajadas</option></select></div>
+          <div class="market-group"><div class="market-group-heading"><h3>Mercado de LALIGA</h3><span id="league-market-count">—</span></div><div id="league-market-grid" class="player-grid"></div></div>
+          <div class="market-group"><div class="market-group-heading"><h3>En venta por managers</h3><span id="manager-market-count">—</span></div><div id="manager-market-grid" class="player-grid"></div></div>
+        </section>
+
+        <section id="radar-clausulas" class="section-block">
+          <div class="section-heading"><div><div class="eyebrow">RADAR DE RIVALES</div><h2>Clausulazos a vigilar</h2><p class="section-desc">Jugadores de otros managers con señales de subida, titularidad o producción.</p></div><div class="section-tools"><select id="radar-trend-filter" aria-label="Filtrar clausulazos por tendencia"><option value="all">Todas las tendencias</option><option value="up">Solo subidas</option><option value="down">Solo bajadas</option></select><span id="radar-count" class="count-pill">—</span></div></div>
+          <div id="clause-radar-grid" class="insight-grid"></div>
+          <button id="radar-more" class="history-button hidden">Mostrar más jugadores ↓</button>
+        </section>
+
+        <section id="ventas" class="section-block">
+          <div class="section-heading"><div><div class="eyebrow">OPTIMIZA TU PLANTILLA</div><h2>Jugadores a revisar para venta</h2><p class="section-desc">Señales combinadas de titularidad, puntos y tendencia de valor.</p></div><div class="section-tools"><select id="sell-trend-filter" aria-label="Filtrar ventas por tendencia"><option value="all">Todas las tendencias</option><option value="up">Solo subidas</option><option value="down">Solo bajadas</option></select><span id="sell-count" class="count-pill">—</span></div></div>
+          <div id="sell-grid" class="insight-grid"></div>
+        </section>
+
+        <section id="favoritos" class="section-block">
+          <div class="section-heading"><div><div class="eyebrow">SEGUIMIENTO DE PRECIO</div><h2>Mis favoritos</h2><p class="section-desc">Jugadores guardados desde mercado, plantilla o radar, con su tendencia de FutbolFantasy.</p></div><div class="section-tools"><select id="favorites-trend-filter" aria-label="Filtrar favoritos por tendencia"><option value="all">Todas las tendencias</option><option value="up">Solo subidas</option><option value="down">Solo bajadas</option></select><span id="favorites-count" class="count-pill">0 jugadores</span></div></div>
+          <div id="favorites-grid" class="player-grid"></div>
+        </section>
+
+        <div class="lower-grid">
+          <section id="rivales" class="section-block compact-block"><div class="section-heading"><div><div class="eyebrow">RADAR DE LIGA</div><h2>Managers de la liga</h2></div><div class="section-tools"><select id="manager-trend-filter" aria-label="Filtrar plantillas por tendencia"><option value="all">Todos los jugadores</option><option value="up">Solo subidas</option><option value="down">Solo bajadas</option></select><span id="rival-count" class="count-pill">—</span></div></div><div class="rival-notice">Los saldos de otros managers no están disponibles. La variación puede cubrir solo parte de cada plantilla.</div><div id="rival-list" class="rival-list"></div></section>
+        </div>
+        <section id="actividad" class="section-block activity-section"><div class="section-heading"><div><div class="eyebrow">MOVIMIENTOS DE LIGA</div><h2>Actividad reciente</h2></div><span class="live-label"><span class="live-dot"></span> LIGA</span></div><div class="activity-note">La actividad muestra los códigos que entrega la API. Cuando no confirma el sentido, mostramos el traspaso entre managers sin afirmar quién compró o vendió. Las pujas abiertas no se publican.</div><div id="activity-list" class="activity-list"></div><button id="activity-more" class="history-button">Cargar movimientos anteriores ↓</button></section>
+        <footer class="page-footer"><span>FANTASY ADVISOR <b>·</b> Hecho para decidir mejor.</span><span>Los cambios que hagas aquí son borradores locales. El juego no se modifica.</span></footer>
+      </section>
+    </main>
+  </div>
+  <dialog id="player-modal" class="player-modal" aria-labelledby="modal-player-name">
+    <div class="modal-head"><div><div class="eyebrow">FICHA DEL JUGADOR</div><h2 id="modal-player-name">Jugador</h2></div><div class="modal-actions"><button id="modal-favorite" class="watch-toggle" type="button" aria-label="Añadir a favoritos">☆</button><button id="modal-close" class="icon-button" aria-label="Cerrar detalle">×</button></div></div>
+    <div id="player-detail" class="player-detail"><div class="empty-state">Cargando datos del jugador…</div></div>
+  </dialog>
+  <dialog id="manager-modal" class="manager-modal" aria-labelledby="manager-modal-name">
+    <div class="modal-head"><div><div class="eyebrow">EQUIPO RIVAL</div><h2 id="manager-modal-name">Manager</h2></div><button id="manager-modal-close" class="icon-button" type="button" aria-label="Cerrar equipo rival">×</button></div>
+    <div id="manager-modal-detail" class="manager-modal-detail"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>

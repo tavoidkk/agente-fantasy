@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "laliga-fantasy-advisor"
+version = "0.1.0"
+description = "Asistente de solo lectura para decisiones en LALIGA Fantasy"
+requires-python = ">=3.11"
+dependencies = ["keyring>=25.0"]
+
+[project.scripts]
+fantasy-advisor = "fantasy_advisor.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fantasy_advisor = ["web/*.html", "web/*.js", "web/*.css"]
