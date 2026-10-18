@@ -145,15 +145,15 @@ function renderMarket(){
 }
 
 function renderClauseRadar(){
-  const trend=$('#radar-trend-filter')?.value||'all';const rows=[...(data.clauseRadar||[])].filter(p=>trendMatches(p,trend)).sort((a,b)=>{
+  const trend=$('#radar-trend-filter')?.value||'all';const unique=new Map();for(const player of data.clauseRadar||[]){const id=String(player.masterId||'');if(id&&!unique.has(id))unique.set(id,player)}const rows=[...unique.values()].filter(p=>trendMatches(p,trend)).sort((a,b)=>{
     const now=Date.now();
-    const aUntil=a.clauseLockedUntil?new Date(a.clauseLockedUntil).getTime():0,bUntil=b.clauseLockedUntil?new Date(b.clauseLockedUntil).getTime():0;
+    const aUntil=a.clauseLockedUntil?new Date(a.clauseLockedUntil).getTime():NaN,bUntil=b.clauseLockedUntil?new Date(b.clauseLockedUntil).getTime():NaN;
     const aLocked=Boolean(a.shielded||(Number.isFinite(aUntil)&&aUntil>now)),bLocked=Boolean(b.shielded||(Number.isFinite(bUntil)&&bUntil>now));
     if(aLocked!==bLocked)return aLocked?1:-1;
     const aNoClause=a.buyoutClause==null,bNoClause=b.buyoutClause==null;
-    if(aNoClause!==bNoClause)return aNoClause?-1:1;
-    const aTime=Number.isFinite(aUntil)?Math.max(0,aUntil-now):0,bTime=Number.isFinite(bUntil)?Math.max(0,bUntil-now):0;
-    if(aLocked&&bLocked&&aTime!==bTime)return bTime-aTime;
+    if(aNoClause!==bNoClause)return aNoClause?1:-1;
+    const aTime=aLocked?(Number.isFinite(aUntil)?aUntil:Number.POSITIVE_INFINITY):0,bTime=bLocked?(Number.isFinite(bUntil)?bUntil:Number.POSITIVE_INFINITY):0;
+    if(aLocked&&bLocked&&aTime!==bTime)return aTime-bTime;
     return (b.recommendation==='Recomendable')-(a.recommendation==='Recomendable')||(b.signals?.length||0)-(a.signals?.length||0);
   });$('#radar-count').textContent=`${Math.min(rows.length,radarVisible)} de ${rows.length}`;
   $('#clause-radar-grid').innerHTML=rows.slice(0,radarVisible).map(p=>{

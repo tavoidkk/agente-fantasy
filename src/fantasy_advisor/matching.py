@@ -36,24 +36,21 @@ def find_match(name: str, players: list[dict]) -> dict | None:
         return exact[0]
     if exact:
         return None
-    tokens = set(key.split())
+    tokens = key.split()
     if not tokens:
         return None
     candidates = []
     for player in players:
-        other = set((player.get("normalized_name") or "").split())
-        if tokens <= other or (len(tokens) > 1 and other <= tokens):
+        other = canonical_player_name(player.get("normalized_name") or player.get("name")).split()
+        if len(tokens) == len(other) and all(
+            ((left.endswith(".") and len(left) == 2) or len(left) == 1)
+            and right.startswith(left[0])
+            or left == right
+            for left, right in zip(tokens, other)
+        ):
             candidates.append(player)
     if len(candidates) == 1:
         return candidates[0]
-    # Fantasy providers often shorten a first name to an initial ("R. Terrats")
-    # while FutbolFantasy uses the full name ("Ramon Terrats"). Only accept a
-    # unique, sufficiently distinctive surname match to avoid guessing between
-    # players who share a common family name.
-    surname = key.split()[-1]
-    if len(surname) >= 5:
-        surname_matches = [p for p in players
-                           if (p.get("normalized_name") or "").split()[-1:] == [surname]]
-        if len(surname_matches) == 1:
-            return surname_matches[0]
+    # Ambiguous or merely similar names remain unmatched so that unrelated
+    # players never inherit each other's external prices or lineup data.
     return None

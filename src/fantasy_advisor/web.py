@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import secrets
 import threading
 import time
@@ -155,6 +156,35 @@ def _manager_key(team: dict) -> str:
                team.get("managerId") or team.get("id") or "")
 
 
+def _unique_manager_teams(rows) -> list[dict]:
+    """Collapse duplicate API team rows by stable manager/team identity."""
+    unique: dict[str, dict] = {}
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        key = _manager_key(row)
+        if not key:
+            continue
+        current = unique.get(key)
+        if current is None or len(row.get("players") or []) > len(current.get("players") or []):
+            unique[key] = row
+    return list(unique.values())
+
+
+def _unique_owned_players(rows) -> list[dict]:
+    """Keep one roster row per official player ID; ignore malformed entries."""
+    unique: dict[str, dict] = {}
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        master = row.get("playerMaster") or {}
+        player_id = master.get("id")
+        if player_id is None or not str(player_id).strip():
+            continue
+        unique.setdefault(str(player_id), row)
+    return list(unique.values())
+
+
 def _manager_name_map(teams) -> dict[str, str]:
     names = {}
     for team in teams if isinstance(teams, list) else []:
@@ -257,7 +287,7 @@ def _unwrap_list(data):
     if isinstance(data, list):
         return data
     if isinstance(data, dict):
-        for key in ("players", "items", "data"):
+        for key in ("players", "teams", "items", "rows", "results", "content", "data"):
             if isinstance(data.get(key), list):
                 return data[key]
     return []
@@ -267,9 +297,39 @@ def _integer(value):
     if value is None or isinstance(value, bool):
         return None
     try:
-        return int(float(str(value).replace(".", "").replace(",", ".")))
-    except (TypeError, ValueError):
+        if isinstance(value, (int, float)):
+            number = float(value)
+            return int(number) if number == number and abs(number) != float("inf") and number.is_integer() else None
+        raw = str(value).strip().replace("€", "").replace(" ", "")
+        if not raw or not re.fullmatch(r"[+-]?[0-9][0-9.,]*", raw):
+            return None
+        sign = -1 if raw.startswith("-") else 1
+        digits = raw.lstrip("+-")
+        separators = [char for char in digits if char in ".,"]
+        if separators:
+            groups = re.split(r"[.,]", digits)
+            # Accept explicit thousands grouping only when every group after
+            # the first contains exactly three digits. Reject decimal amounts.
+            if len(groups) > 1 and all(len(group) == 3 for group in groups[1:]):
+                digits = "".join(groups)
+            elif len(groups) == 2 and groups[1] in {"0", "00"}:
+                digits = groups[0]
+            else:
+                return None
+        return sign * int(digits)
+    except (TypeError, ValueError, OverflowError):
         return None
+
+
+def _position_name(value) -> str:
+    """Normalize the API's numeric/string position IDs without guessing."""
+    if isinstance(value, bool):
+        return "Desconocida"
+    try:
+        numeric = int(value)
+    except (TypeError, ValueError, OverflowError):
+        return "Desconocida"
+    return POSITION_NAMES.get(numeric, "Desconocida")
 
 
 def _decimal(value):
@@ -634,8 +694,8 @@ def dashboard_data() -> dict:
     _sync_lineups()
     ff_players = storage.latest_ff_players()
     probable = storage.latest_ff_lineups()
-    market = client.market(league_id)
-    report = build_report(team, ff_players, probable, market if isinstance(market, list) else [])
+    market = _unwrap_list(client.market(league_id))
+    report = build_report(team, ff_players, probable, market)
     # Team and market payloads often omit the portrait URL. The full player
     # catalogue carries it, as used by the player detail modal.
     player_catalog = _unwrap_list(client.all_players())
@@ -650,16 +710,17 @@ def dashboard_data() -> dict:
         return _player_image(complete) or _player_image(master)
 
     own_id = str(team.get("id"))
-    teams = client.league_teams(league_id)
+    teams = _unique_manager_teams(_unwrap_list(client.league_teams(league_id)))
     manager_by_id = _manager_name_map(teams)
     club_names, club_images = _club_catalog(
-        client, league_id, team, teams if isinstance(teams, list) else [],
-        market if isinstance(market, list) else [], player_catalog)
+        client, league_id, team, teams,
+        market, player_catalog)
 
     roster = []
-    for owned in team.get("players") or []:
+    own_players = _unique_owned_players(team.get("players"))
+    for owned in own_players:
         master = owned.get("playerMaster") or {}
-        position = POSITION_NAMES.get(master.get("positionId"), "Desconocida")
+        position = _position_name(master.get("positionId"))
         if position == "Desconocida":
             continue
         ff = find_match(_name(master), ff_players)
@@ -695,8 +756,8 @@ def dashboard_data() -> dict:
             break
         raw_activity.extend(events)
         activity_last_page = page
-    activity_market = market if isinstance(market, list) else []
-    activity_teams = teams if isinstance(teams, list) else []
+    activity_market = market
+    activity_teams = teams
     activity_player_catalog = [*player_catalog, *(team.get("players") or []), *activity_market]
     for league_team in activity_teams:
         activity_player_catalog.extend(league_team.get("players") or [])
@@ -716,7 +777,7 @@ def dashboard_data() -> dict:
         if ff:
             master_to_ff[master_id] = str(ff["player_id"])
     storage.seed_league_values_from_ff(league_id, master_to_ff)
-    own_team_row = next((row for row in (teams if isinstance(teams, list) else [])
+    own_team_row = next((row for row in teams
                          if isinstance(row, dict) and str(row.get("id")) == own_id), {})
     own_manager = own_team_row.get("manager") or team.get("manager") or {}
     own_manager_id = str(own_manager.get("id") or own_team_row.get("managerId") or team.get("managerId") or "")
@@ -733,7 +794,7 @@ def dashboard_data() -> dict:
     rivals = []
     rival_players = []
     manager_rosters = {}
-    for rival in teams if isinstance(teams, list) else []:
+    for rival in teams:
         manager = rival.get("manager") or {}
         manager_id = _manager_key(rival)
         manager_name = manager.get("managerName") or rival.get("name") or "Manager"
@@ -741,14 +802,14 @@ def dashboard_data() -> dict:
             continue
         rivals.append({
             "managerId": manager_id, "name": manager_name,
-            "teamValue": rival.get("teamValue"), "teamPoints": rival.get("teamPoints"),
-            "position": rival.get("position"), "players": len(rival.get("players") or []),
+            "teamValue": _integer(rival.get("teamValue")), "teamPoints": _integer(rival.get("teamPoints")),
+            "position": rival.get("position"), "players": len(_unique_owned_players(rival.get("players"))),
             "balance": rival.get("teamMoney"),
         })
         manager_rosters[manager_id] = []
-        for owned in rival.get("players") or []:
+        for owned in _unique_owned_players(rival.get("players")):
             master = owned.get("playerMaster") or {}
-            position = POSITION_NAMES.get(master.get("positionId"), "Desconocida")
+            position = _position_name(master.get("positionId"))
             if position == "Desconocida":
                 continue
             ff = find_match(_name(master), ff_players)
@@ -815,7 +876,7 @@ def dashboard_data() -> dict:
 
     own_manager_key = _manager_key(own_team_row or team)
     rivals.append({"managerId": own_manager_key, "name": own_manager_name or team.get("name") or "Mi equipo",
-                   "isOwn": True, "teamValue": team.get("teamValue"), "teamPoints": team.get("teamPoints"),
+                   "isOwn": True, "teamValue": _integer(team.get("teamValue")), "teamPoints": _integer(team.get("teamPoints")),
                    "position": own_team_row.get("position") or team.get("position"),
                    "players": len(roster), "balance": team.get("teamMoney"), "roster": roster})
     manager_rosters[own_manager_key] = roster
@@ -883,7 +944,7 @@ def dashboard_data() -> dict:
             "Tiene señales deportivas o de valor, pero la cláusula, el bloqueo o los datos disponibles no permiten recomendar el pago ahora."
             if player["signals"] else "Sin tendencia positiva, rendimiento relativo o titularidad suficiente para priorizarlo."
         )
-        if player["signals"]:
+        if player["signals"] and player["buyoutClause"] is not None and player["buyoutClause"] > 0:
             radar.append(player)
     radar.sort(key=lambda p: (p["recommendation"] == "Recomendable", len(p["signals"]),
                              p["averagePoints"] or 0, p["dailyChange"] or 0), reverse=True)
@@ -908,14 +969,14 @@ def dashboard_data() -> dict:
         str(row.get("id")): POSITION_NAMES.get(row.get("positionId"), "")
         for row in player_catalog if row.get("id") is not None})
     market_rows = []
-    for listing in market if isinstance(market, list) else []:
+    for listing in market:
         master = listing.get("playerMaster") or {}
         ff = find_match(_name(master), ff_players)
         lineup_info = find_match(_name(master), probable)
         club = _club_name(master, club_names)
         market_rows.append({
             "id": str(listing.get("id")), "masterId": str(master.get("id") or ""), "name": _name(master),
-            "position": POSITION_NAMES.get(master.get("positionId"), "Desconocida"),
+            "position": _position_name(master.get("positionId")),
             "club": club,
             "value": master.get("marketValue"), "asking": listing.get("salePrice"),
             "points": master.get("points"), "averagePoints": _decimal(master.get("averagePoints")),
